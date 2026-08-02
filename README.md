@@ -44,6 +44,16 @@ GitHub Pages so the parents' page updates). It reuses the exact `collector.py` +
 `meals.json` — add/remove meals, tweak ingredient wording to match what you actually buy.
 Pantry staples (oil, salt, spices) are listed separately so they don't clutter the shop.
 
+## Compare your two stores
+The weekly page uses the primary store (Success, `0490`). To see where the *other*
+store (South Lake, `0333`) is cheaper for your ingredients, run it on demand:
+
+    python compare.py        # or double-click compare.bat
+
+It takes the same product Success uses and looks up that product's price at South Lake,
+lists what's cheaper where, and gives the whole-basket difference. Most items are
+identical (national pricing); fresh produce is where the two usually differ.
+
 ## Honest notes
 - Prices are **indicative**: it takes the cheapest relevant match per ingredient, which can
   occasionally pick an odd pack size. Good enough for "what's cheap this week".

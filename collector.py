@@ -30,11 +30,12 @@ HALF_PRICE = 0.50        # now <= 50% of was
 SPECIAL_MIN = 0.15       # >=15% off counts as "on special"
 
 
-def _get(url, tries=6):
+def _get(url, tries=6, store=None):
     last = None
     headers = {"User-Agent": UA, "Accept": "*/*", "Accept-Language": "en-AU,en;q=0.9"}
-    if STORE_ID:  # localise pricing to the family's store (carried by a cookie)
-        headers["Cookie"] = f"fulfillmentStoreId={STORE_ID}; shopping-method={SHOPPING_METHOD}"
+    sid = store or STORE_ID
+    if sid:  # localise pricing to the given store (carried by a cookie)
+        headers["Cookie"] = f"fulfillmentStoreId={sid}; shopping-method={SHOPPING_METHOD}"
     for i in range(tries):
         try:
             req = urllib.request.Request(url, headers=headers)
@@ -45,10 +46,10 @@ def _get(url, tries=6):
     raise last
 
 
-def get_build_id(tries=6):
+def get_build_id(tries=6, store=None):
     """Coles occasionally serves a bot-challenge stub even to residential IPs; retry."""
     for i in range(tries):
-        html = _get("https://www.coles.com.au/")
+        html = _get("https://www.coles.com.au/", store=store)
         if '"buildId":"' in html:
             return html.split('"buildId":"')[1].split('"')[0]
         time.sleep(3 * (i + 1))
@@ -69,11 +70,11 @@ def term_of(ing):
     return parts[0] if len(parts) == 2 and parts[1].isdigit() else ing
 
 
-def search(term, build, pins):
+def search(term, build, pins, store=None):
     url = (f"https://www.coles.com.au/_next/data/{build}/en/search/products.json"
            f"?q={urllib.parse.quote(term)}")
     try:
-        data = json.loads(_get(url))
+        data = json.loads(_get(url, store=store))
     except Exception as e:
         return {"term": term, "found": False, "error": str(e)}
     results = (data.get("pageProps", {}).get("searchResults", {}).get("results") or [])
