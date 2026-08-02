@@ -327,10 +327,10 @@
       "half_price": false
     },
     "chicken stock": {
-      "name": "Real Stock Chicken Stock",
-      "now": 1.8,
+      "name": "7 Bouillon Cubes Chicken Style",
+      "now": 1,
       "was": null,
-      "unit": "$0.72/ 100mL",
+      "unit": "$0.29/ 10g",
       "special": false,
       "term": "chicken stock",
       "found": true,
@@ -747,10 +747,10 @@
       "half_price": false
     },
     "pizza bases": {
-      "name": "Squeezy Pizza Sauce",
-      "now": 2.5,
+      "name": "Soft White Wraps 8 Pack",
+      "now": 2.2,
       "was": null,
-      "unit": "$0.60/ 100g",
+      "unit": "$0.61/ 100g",
       "special": false,
       "term": "pizza bases",
       "found": true,
@@ -1165,11 +1165,23 @@
       "name": "Homemade Pizza",
       "emoji": "🍕",
       "theme": "Pizza",
-      "cost": 15.26,
+      "cost": 14.96,
       "n_special": 1,
       "n_half": 0,
       "special_items": [
         "shaved ham"
+      ]
+    },
+    {
+      "id": "chicken_corn_soup",
+      "name": "Chicken & Sweetcorn Soup",
+      "emoji": "🥣",
+      "theme": "Soup",
+      "cost": 15.75,
+      "n_special": 1,
+      "n_half": 0,
+      "special_items": [
+        "chicken breast"
       ]
     },
     {
@@ -1182,18 +1194,6 @@
       "n_half": 0,
       "special_items": [
         "beef steak"
-      ]
-    },
-    {
-      "id": "chicken_corn_soup",
-      "name": "Chicken & Sweetcorn Soup",
-      "emoji": "🥣",
-      "theme": "Soup",
-      "cost": 16.55,
-      "n_special": 1,
-      "n_half": 0,
-      "special_items": [
-        "chicken breast"
       ]
     },
     {
