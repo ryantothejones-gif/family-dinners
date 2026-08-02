@@ -73,7 +73,7 @@
     },
     {
       "id": "burgers", "name": "Burgers & Chips", "theme": "Wraps", "emoji": "🍔",
-      "ingredients": ["beef burger patties x2", "burger buns", "tasty cheese", "lettuce", "tomato", "frozen chips", "tomato sauce"],
+      "ingredients": ["beef mince", "hamburger helper", "burger buns", "tasty cheese", "lettuce", "tomato", "frozen chips", "tomato sauce"],
       "pantry": []
     },
     {
