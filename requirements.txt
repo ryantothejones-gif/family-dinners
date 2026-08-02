@@ -1,0 +1,4 @@
+# The collector + site builder are stdlib-only (no install needed).
+# These are only for the desktop app / packaging:
+pywebview>=4.4     # native GUI window
+pyinstaller>=6.0   # build the .exe (python build.py)

@@ -30,6 +30,16 @@ No dependencies — just Python 3:
     python3 build_site.py     # build docs/index.html
     # open docs/index.html
 
+## Desktop app
+`app.py` is a native window (pywebview) that shows the current week's plan, with
+**Refresh prices** (re-pull live Coles + rebuild) and **Send to family** (publish to
+GitHub Pages so the parents' page updates). It reuses the exact `collector.py` +
+`build_site.py` the weekly job runs — the app is just a friendly front door.
+
+    python app.py            # open the window
+    python app.py --refresh  # headless pull + rebuild
+    python build.py          # package -> dist/FamilyDinners.exe
+
 ## Edit the meals
 `meals.json` — add/remove meals, tweak ingredient wording to match what you actually buy.
 Pantry staples (oil, salt, spices) are listed separately so they don't clutter the shop.
