@@ -13,10 +13,15 @@ Large text, high contrast, big buttons, works on a phone (Add to Home Screen).
   snapshot to `prices/` each run — this history is what powers "next half-price" prediction later.
 - **`build_site.py`** — picks a varied week (max 2 per theme, favouring specials) and builds
   the accessible page in `docs/` (one shopping list, print button, one-tap meal swaps).
-- **`deploy.sh`** — what the VPS runs every Wednesday morning (AWST): refresh → rebuild → push.
-  GitHub Pages serves `docs/`.
+- **`deploy.ps1`** — what this PC runs every Wednesday morning via a Scheduled Task
+  (register it with `deploy/setup_task.ps1`): refresh → rebuild → commit → push. GitHub Pages
+  serves `docs/`. (`deploy.sh` is the same job for a \*nix host.)
 
 Coles changes specials Tuesday night (live Wednesday), so the refresh runs Wednesday AM.
+
+> **Why this PC and not a server?** Coles blocks datacenter IPs — a VPS or CI runner gets a
+> ~212-byte Incapsula bot-challenge instead of the page. The fetch has to come from a
+> residential AU connection, so the weekly job runs on a home PC and just pushes the result up.
 
 ## Run it yourself
 No dependencies — just Python 3:
