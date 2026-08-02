@@ -89,9 +89,14 @@ def search(term, build, pins):
     now = pr["now"]
     was = pr.get("was") if (pr.get("was") and pr["was"] > now) else None
     disc = round(1 - now / was, 3) if was else 0.0
+    # exact Coles product photo = assetsUrl + the product's image uri (fail-soft)
+    assets = data.get("pageProps", {}).get("assetsUrl") or ""
+    uris = chosen.get("imageUris") or []
+    uri = uris[0].get("uri") if (uris and isinstance(uris[0], dict)) else None
+    image = (assets + uri) if (assets and uri) else None
     return {
         "term": term, "found": True, "id": str(chosen.get("id")),
-        "name": chosen.get("name"), "size": chosen.get("size"),
+        "name": chosen.get("name"), "size": chosen.get("size"), "image": image,
         "now": now, "was": was, "unit": pr.get("comparable"),
         "discount": disc,
         "on_special": (disc >= SPECIAL_MIN),           # honest: needs a real was-price

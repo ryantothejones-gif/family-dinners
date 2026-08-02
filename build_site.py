@@ -41,6 +41,7 @@ def load():
                 continue
             ings.append({"term": term, "now": p["now"], "qty": qty,
                          "name": p.get("name") or "", "size": p.get("size") or "",
+                         "image": p.get("image") or "",
                          "special": bool(p.get("on_special")), "half": bool(p.get("half_price"))})
             cost += p["now"] * qty
         out.append({
@@ -102,6 +103,9 @@ HTML = """<!doctype html>
   .row:last-child { border-bottom:0; }
   .row input { width:30px; height:30px; flex:0 0 auto; }
   .row.done .item { text-decoration:line-through; color:#999; }
+  .thumb { width:52px; height:52px; flex:0 0 auto; object-fit:contain;
+           background:#fff; border:1px solid #eee; border-radius:8px; }
+  .thumb.noimg { border-style:dashed; background:#fafafa; }
   .item { flex:1; }
   .line { font-size:1.15rem; }
   .qty { font-weight:700; color:var(--red); }
@@ -113,7 +117,7 @@ HTML = """<!doctype html>
   .actions { position:sticky; bottom:0; background:#f4f4f4; padding:14px 0 4px; }
   @media print {
     body { background:#fff; font-size:14pt; }
-    .grid, .swap, .actions, .sub, .noprint { display:none !important; }
+    .grid, .swap, .actions, .sub, .noprint, .thumb { display:none !important; }
     h2 { margin-top:0; }
     .row input { width:16px; height:16px; }
   }
@@ -178,10 +182,14 @@ function renderList() {
              : ing.special ? '<span class="tag">SPECIAL</span>' : '';
     const q = ing.qty > 1 ? `<span class="qty">×${ing.qty}</span> ` : '';
     const brand = ing.name ? `<span class="brand">${ing.name}${ing.size ? ' · ' + ing.size : ''}</span>` : '';
+    const thumb = ing.image
+      ? `<img class="thumb" src="${ing.image}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`
+      : `<span class="thumb noimg"></span>`;
     const row = document.createElement('div');
     row.className = 'row';
     const id = 'c' + n;
     row.innerHTML = `<input type="checkbox" id="${id}" onchange="this.closest('.row').classList.toggle('done', this.checked)">
+      ${thumb}
       <label class="item" for="${id}"><span class="line">${q}${ing.term} ${tag}</span>${brand}</label>
       <span class="price">$${(ing.now * ing.qty).toFixed(2)}</span>`;
     list.appendChild(row);
