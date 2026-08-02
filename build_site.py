@@ -6,15 +6,14 @@ meals with ingredients on special, and emits a self-contained docs/index.html
 (inline CSS/JS) served by GitHub Pages from /docs.
 
 Design targets: large text, high contrast, big tap targets, one combined shopping
-list (quantity-aware, shows "x2"), a Print button, one-tap swaps. Each meal shows a
-real photo if docs/img/<meal-id>.(jpg|jpeg|png|webp) exists, otherwise a big icon tile.
+list that shows the exact product + size to grab (quantity-aware, "x2"), a Print
+button, and one-tap swaps.
 """
 import json, os, datetime
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PLAN_SIZE = 6
 MAX_PER_THEME = 2
-IMG_EXTS = (".jpg", ".jpeg", ".png", ".webp")
 
 
 def qty_of(ing):
@@ -25,13 +24,6 @@ def qty_of(ing):
 def term_of(ing):
     parts = ing.rsplit(" x", 1)
     return parts[0] if len(parts) == 2 and parts[1].isdigit() else ing
-
-
-def photo_for(meal_id):
-    for ext in IMG_EXTS:
-        if os.path.exists(os.path.join(HERE, "docs", "img", meal_id + ext)):
-            return f"img/{meal_id}{ext}"
-    return None
 
 
 def load():
@@ -48,12 +40,12 @@ def load():
             if not p.get("found"):
                 continue
             ings.append({"term": term, "now": p["now"], "qty": qty,
+                         "name": p.get("name") or "", "size": p.get("size") or "",
                          "special": bool(p.get("on_special")), "half": bool(p.get("half_price"))})
             cost += p["now"] * qty
         out.append({
             "id": m["id"], "name": m["name"], "emoji": m.get("emoji", ""),
             "theme": m["theme"], "cost": round(cost, 2), "ingredients": ings,
-            "photo": photo_for(m["id"]),
             "n_half": sum(i["half"] for i in ings),
             "n_special": sum(i["special"] or i["half"] for i in ings),
         })
@@ -91,14 +83,11 @@ HTML = """<!doctype html>
   h1 { font-size:2.1rem; margin:.2em 0; }
   .sub { color:#555; font-size:1rem; }
   h2 { font-size:1.5rem; border-bottom:3px solid var(--line); padding-bottom:6px; margin-top:34px; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; }
-  .card { background:var(--bg); border:2px solid var(--line); border-radius:18px;
-          overflow:hidden; display:flex; flex-direction:column; }
-  .tile { height:150px; display:flex; align-items:center; justify-content:center; }
-  .tile img { width:100%; height:100%; object-fit:cover; display:block; }
-  .emoji { font-size:4.4rem; line-height:1; filter:drop-shadow(0 2px 2px rgba(0,0,0,.15)); }
-  .body { padding:14px 16px 16px; text-align:center; display:flex; flex-direction:column; flex:1; }
-  .mname { font-weight:700; font-size:1.2rem; margin:2px 0 4px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+  .card { background:var(--bg); border:2px solid var(--line); border-radius:16px;
+          padding:18px 16px; text-align:center; display:flex; flex-direction:column; }
+  .mname { font-weight:700; font-size:1.25rem; margin:0 0 6px; }
+  .mname .e { font-size:1.5rem; margin-right:4px; }
   .mcost { color:#444; }
   .pill { display:inline-block; margin-top:8px; padding:4px 12px; border-radius:999px;
           font-size:.9rem; font-weight:700; background:var(--green-bg); color:var(--green); }
@@ -112,10 +101,12 @@ HTML = """<!doctype html>
   .row { display:flex; align-items:center; gap:14px; padding:14px 12px; border-bottom:1px solid #eee; }
   .row:last-child { border-bottom:0; }
   .row input { width:30px; height:30px; flex:0 0 auto; }
-  .row.done label { text-decoration:line-through; color:#999; }
-  .item { flex:1; font-size:1.15rem; }
+  .row.done .item { text-decoration:line-through; color:#999; }
+  .item { flex:1; }
+  .line { font-size:1.15rem; }
   .qty { font-weight:700; color:var(--red); }
-  .price { color:#444; font-variant-numeric:tabular-nums; }
+  .brand { display:block; font-size:.82rem; color:#777; margin-top:2px; }
+  .price { color:#444; font-variant-numeric:tabular-nums; font-weight:600; }
   .tag { font-size:.8rem; font-weight:700; padding:2px 8px; border-radius:999px; background:var(--green-bg); color:var(--green); }
   .tag.half { background:var(--half-bg); color:var(--half); }
   .total { text-align:right; font-size:1.2rem; font-weight:700; padding:12px; }
@@ -150,13 +141,6 @@ HTML = """<!doctype html>
 const MEALS = __MEALS__;
 let plan = __PLAN__;
 const byId = Object.fromEntries(MEALS.map(m => [m.id, m]));
-const THEME_BG = {Pasta:'#fff1e6',Curry:'#fdeede',Pizza:'#ffeaea',Schnitzel:'#fdf6e3',
-  Wraps:'#eef7ee',Stroganoff:'#f0eef8','Stir Fry':'#eaf4f7',Roast:'#f6efe8',BBQ:'#fdeeea',Soup:'#eef4ee'};
-
-function tile(m) {
-  if (m.photo) return `<div class="tile"><img src="${m.photo}" alt="${m.name}"></div>`;
-  return `<div class="tile" style="background:${THEME_BG[m.theme]||'#f2efe9'}"><div class="emoji">${m.emoji}</div></div>`;
-}
 
 function render() {
   const cards = document.getElementById('cards');
@@ -167,11 +151,10 @@ function render() {
               : m.n_special ? `<span class="pill">${m.n_special} on special</span>` : '';
     const el = document.createElement('div');
     el.className = 'card';
-    el.innerHTML = tile(m) + `<div class="body">
-      <div class="mname">${m.name}</div>
+    el.innerHTML = `<div class="mname"><span class="e">${m.emoji}</span>${m.name}</div>
       <div class="mcost">about $${m.cost.toFixed(2)}</div>
       ${pill}
-      <div class="swap"><button onclick="swap(${i})">🔁 Swap</button></div></div>`;
+      <div class="swap"><button onclick="swap(${i})">🔁 Swap</button></div>`;
     cards.appendChild(el);
   });
   renderList();
@@ -194,11 +177,12 @@ function renderList() {
     const tag = ing.half ? '<span class="tag half">½ PRICE</span>'
              : ing.special ? '<span class="tag">SPECIAL</span>' : '';
     const q = ing.qty > 1 ? `<span class="qty">×${ing.qty}</span> ` : '';
+    const brand = ing.name ? `<span class="brand">${ing.name}${ing.size ? ' · ' + ing.size : ''}</span>` : '';
     const row = document.createElement('div');
     row.className = 'row';
     const id = 'c' + n;
     row.innerHTML = `<input type="checkbox" id="${id}" onchange="this.closest('.row').classList.toggle('done', this.checked)">
-      <label class="item" for="${id}">${q}${ing.term} ${tag}</label>
+      <label class="item" for="${id}"><span class="line">${q}${ing.term} ${tag}</span>${brand}</label>
       <span class="price">$${(ing.now * ing.qty).toFixed(2)}</span>`;
     list.appendChild(row);
   });
@@ -236,7 +220,6 @@ def main():
     idx = {m["id"]: m for m in meals}
     print(f"Built {path}")
     print("This week's plan:", ", ".join(idx[i]["name"] for i in plan))
-    print("Photos present:", sum(1 for m in meals if m["photo"]), "/", len(meals))
 
 
 if __name__ == "__main__":
