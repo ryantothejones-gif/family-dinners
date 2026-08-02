@@ -1,0 +1,37 @@
+# Family Dinners 🍽️
+
+A dead-simple weekly dinner planner. It reads **live Coles prices**, finds what's on
+special (especially half-price), picks a week of dinners whose ingredients are cheapest
+right now, and prints **one combined shopping list**.
+
+Built meal-first on purpose: no "what should we buy?" — just this week's meals and a list.
+Large text, high contrast, big buttons, works on a phone (Add to Home Screen).
+
+## How it works
+- **`collector.py`** — fetches live Coles prices for every ingredient in `meals.json`
+  (public `_next/data` endpoint, no login). Half-price = `now ≤ 50% of was`. Saves a
+  snapshot to `prices/` each run — this history is what powers "next half-price" prediction later.
+- **`build_site.py`** — picks a varied week (max 2 per theme, favouring specials) and builds
+  the accessible page in `docs/` (one shopping list, print button, one-tap meal swaps).
+- **`deploy.sh`** — what the VPS runs every Wednesday morning (AWST): refresh → rebuild → push.
+  GitHub Pages serves `docs/`.
+
+Coles changes specials Tuesday night (live Wednesday), so the refresh runs Wednesday AM.
+
+## Run it yourself
+No dependencies — just Python 3:
+
+    python3 collector.py      # fetch live prices -> prices/latest.json
+    python3 build_site.py     # build docs/index.html
+    # open docs/index.html
+
+## Edit the meals
+`meals.json` — add/remove meals, tweak ingredient wording to match what you actually buy.
+Pantry staples (oil, salt, spices) are listed separately so they don't clutter the shop.
+
+## Honest notes
+- Prices are **indicative**: it takes the cheapest relevant match per ingredient, which can
+  occasionally pick an odd pack size. Good enough for "what's cheap this week".
+- Quantities assume one of each item.
+- "Next half-price" prediction needs a few weeks of snapshots before it can appear.
+- Coles only for now; Woolworths can be added if it's reachable from the collector's host.

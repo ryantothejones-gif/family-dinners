@@ -1,0 +1,140 @@
+{
+  "_note": "Family dinner library. 'ingredients' are Coles search terms resolved to live prices each week. 'pantry' = assumed on-hand staples, not added to the weekly shopping list. Edit freely: add/remove meals, tweak ingredient wording to match what you actually buy.",
+  "meals": [
+    {
+      "id": "spag_bol", "name": "Spaghetti Bolognese", "theme": "Pasta", "emoji": "🍝",
+      "ingredients": ["beef mince", "spaghetti", "bolognese pasta sauce", "brown onion", "garlic", "carrot", "garlic bread"],
+      "pantry": ["olive oil", "salt", "pepper"]
+    },
+    {
+      "id": "carbonara", "name": "Spaghetti Carbonara", "theme": "Pasta", "emoji": "🍝",
+      "ingredients": ["bacon", "spaghetti", "eggs", "parmesan cheese", "thickened cream", "garlic bread"],
+      "pantry": ["olive oil", "salt", "pepper", "garlic"]
+    },
+    {
+      "id": "pesto_pasta", "name": "Pesto Pasta", "theme": "Pasta", "emoji": "🍝",
+      "ingredients": ["basil pesto", "penne pasta", "cherry tomatoes", "parmesan cheese"],
+      "pantry": ["olive oil"]
+    },
+    {
+      "id": "beef_lasagne", "name": "Beef Lasagne", "theme": "Pasta", "emoji": "🍝",
+      "ingredients": ["beef mince", "lasagne sheets", "bolognese pasta sauce", "tasty cheese", "white pasta sauce", "brown onion", "garlic bread"],
+      "pantry": ["olive oil"]
+    },
+    {
+      "id": "pumpkin_ricotta_lasagne", "name": "Pumpkin & Ricotta Lasagne", "theme": "Pasta", "emoji": "🍝",
+      "ingredients": ["pumpkin", "ricotta cheese", "lasagne sheets", "baby spinach", "tasty cheese", "napoletana pasta sauce"],
+      "pantry": ["olive oil"]
+    },
+    {
+      "id": "creamy_mushroom_pasta", "name": "Creamy Mushroom Pasta", "theme": "Pasta", "emoji": "🍝",
+      "ingredients": ["mushrooms", "fettuccine", "thickened cream", "parmesan cheese", "brown onion", "garlic bread"],
+      "pantry": ["olive oil", "garlic"]
+    },
+    {
+      "id": "chicken_curry", "name": "Indian Chicken Curry", "theme": "Curry", "emoji": "🍛",
+      "ingredients": ["chicken thigh fillet", "tikka masala curry paste", "basmati rice", "coconut milk", "brown onion", "naan bread", "papadums"],
+      "pantry": ["vegetable oil"]
+    },
+    {
+      "id": "chickpea_curry", "name": "Chickpea Curry (veg)", "theme": "Curry", "emoji": "🍛",
+      "ingredients": ["chickpeas", "korma curry paste", "basmati rice", "coconut milk", "baby spinach", "brown onion", "naan bread"],
+      "pantry": ["vegetable oil"]
+    },
+    {
+      "id": "homemade_pizza", "name": "Homemade Pizza", "theme": "Pizza", "emoji": "🍕",
+      "ingredients": ["pizza bases", "pizza sauce", "mozzarella cheese", "shaved ham", "mushrooms", "capsicum"],
+      "pantry": []
+    },
+    {
+      "id": "moroccan_chicken", "name": "Moroccan Chicken", "theme": "Pizza", "emoji": "🍗",
+      "ingredients": ["chicken thigh fillet", "moroccan seasoning", "couscous", "chickpeas", "carrot", "garlic bread"],
+      "pantry": ["olive oil"]
+    },
+    {
+      "id": "chicken_schnitzel", "name": "Chicken Schnitzel, Chips & Gravy", "theme": "Schnitzel", "emoji": "🍗",
+      "ingredients": ["chicken schnitzel", "frozen chips", "gravy", "mixed salad"],
+      "pantry": []
+    },
+    {
+      "id": "chicken_kiev", "name": "Chicken Kiev with Chips", "theme": "Schnitzel", "emoji": "🍗",
+      "ingredients": ["chicken kiev", "frozen chips", "frozen peas", "cucumber", "tomato", "feta cheese"],
+      "pantry": []
+    },
+    {
+      "id": "lamb_kofta_wrap", "name": "Lamb Kofta Wraps", "theme": "Wraps", "emoji": "🌯",
+      "ingredients": ["lamb mince", "wraps", "tzatziki", "lettuce", "tomato", "red onion"],
+      "pantry": ["salt", "pepper"]
+    },
+    {
+      "id": "mexican_wrap", "name": "Mexican Wraps", "theme": "Wraps", "emoji": "🌯",
+      "ingredients": ["beef mince", "tortilla wraps", "taco seasoning", "tasty cheese", "lettuce", "salsa", "sour cream"],
+      "pantry": []
+    },
+    {
+      "id": "burgers", "name": "Burgers & Chips", "theme": "Wraps", "emoji": "🍔",
+      "ingredients": ["beef burger patties", "burger buns", "tasty cheese", "lettuce", "tomato", "frozen chips", "tomato sauce"],
+      "pantry": []
+    },
+    {
+      "id": "steak_sandwich", "name": "Steak Sandwiches", "theme": "Wraps", "emoji": "🥪",
+      "ingredients": ["beef steak", "bread rolls", "brown onion", "lettuce", "tomato", "beetroot"],
+      "pantry": ["olive oil"]
+    },
+    {
+      "id": "beef_stroganoff", "name": "Beef Stroganoff", "theme": "Stroganoff", "emoji": "🍲",
+      "ingredients": ["beef strips", "mushrooms", "sour cream", "brown onion", "fettuccine", "beef stock"],
+      "pantry": ["olive oil"]
+    },
+    {
+      "id": "chow_mein", "name": "Chow Mein", "theme": "Stroganoff", "emoji": "🍜",
+      "ingredients": ["beef mince", "chow mein noodles", "cabbage", "carrot", "curry powder", "soy sauce"],
+      "pantry": ["vegetable oil"]
+    },
+    {
+      "id": "beef_stir_fry", "name": "Beef Stir Fry with Rice", "theme": "Stir Fry", "emoji": "🥢",
+      "ingredients": ["beef strips", "stir fry vegetables", "jasmine rice", "black bean sauce", "garlic"],
+      "pantry": ["soy sauce", "vegetable oil"]
+    },
+    {
+      "id": "chicken_stir_fry", "name": "Honey Soy Chicken Stir Fry", "theme": "Stir Fry", "emoji": "🥢",
+      "ingredients": ["chicken breast", "hokkien noodles", "stir fry vegetables", "honey soy stir fry sauce"],
+      "pantry": ["vegetable oil"]
+    },
+    {
+      "id": "shepherds_pie", "name": "Shepherd's Pie", "theme": "Roast", "emoji": "🥧",
+      "ingredients": ["lamb mince", "potatoes", "frozen peas and corn", "brown onion", "beef stock", "tasty cheese"],
+      "pantry": ["olive oil"]
+    },
+    {
+      "id": "roast_beef", "name": "Roast Beef & Veggies", "theme": "Roast", "emoji": "🥩",
+      "ingredients": ["beef roast", "potatoes", "pumpkin", "carrot", "gravy", "frozen peas"],
+      "pantry": ["olive oil", "salt"]
+    },
+    {
+      "id": "beef_casserole", "name": "Beef Casserole", "theme": "Roast", "emoji": "🥘",
+      "ingredients": ["beef casserole steak", "potatoes", "carrot", "celery", "beef stock", "brown onion"],
+      "pantry": ["olive oil"]
+    },
+    {
+      "id": "sausages_bbq", "name": "Sausages & Sweet Potato Salad", "theme": "BBQ", "emoji": "🌭",
+      "ingredients": ["beef sausages", "sweet potato", "baby spinach", "red onion", "bread rolls"],
+      "pantry": ["olive oil"]
+    },
+    {
+      "id": "pumpkin_soup", "name": "Pumpkin Soup", "theme": "Soup", "emoji": "🥣",
+      "ingredients": ["pumpkin", "brown onion", "vegetable stock", "thickened cream", "garlic bread"],
+      "pantry": ["olive oil"]
+    },
+    {
+      "id": "chicken_corn_soup", "name": "Chicken & Sweetcorn Soup", "theme": "Soup", "emoji": "🥣",
+      "ingredients": ["chicken breast", "creamed corn", "chicken stock", "eggs", "spring onion", "garlic bread"],
+      "pantry": []
+    },
+    {
+      "id": "laksa", "name": "Chicken Laksa", "theme": "Soup", "emoji": "🍜",
+      "ingredients": ["chicken thigh fillet", "laksa paste", "coconut milk", "hokkien noodles", "bean sprouts"],
+      "pantry": []
+    }
+  ]
+}

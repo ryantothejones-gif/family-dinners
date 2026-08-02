@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Family Dinners refresh every Wednesday morning (AWST)
+
+[Timer]
+# Coles specials change Tuesday night, live Wednesday -> refresh Wed 06:30 local (AWST).
+OnCalendar=Wed *-*-* 06:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
