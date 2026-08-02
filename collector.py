@@ -4,9 +4,14 @@ family-dinners collector
 Resolves every ingredient in meals.json to a live Coles price, flags specials /
 half-prices, and scores which dinners are cheapest this week.
 
+Product selection: the most-relevant search hit whose name actually contains the
+ingredient's head noun (so "sour cream" -> sour cream, not potato chips; "beef mince"
+-> mince, not a bulk tray). This is deterministic, so it tracks the same product each
+week for honest half-price cycle detection. An optional pins.json can override the
+choice for specific ingredients (see pin_ingredients.py).
+
 Stdlib only (urllib + json) so it runs on any machine with Python, no pip install.
-Coles catalogue changes Tuesday night (live Wednesday), so this is meant to run
-each Wednesday morning; every run is appended to prices/ to build history.
+Coles catalogue changes Tuesday night (live Wednesday); run each Wednesday morning.
 """
 import json, sys, time, urllib.request, urllib.parse, datetime, os
 
@@ -18,74 +23,88 @@ UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/120.0 Safari/537.36")
 HALF_PRICE = 0.50        # now <= 50% of was
 SPECIAL_MIN = 0.15       # >=15% off counts as "on special"
-TOP_N = 12               # cheapest within the N most-relevant results (avoids junk matches)
 
 
-def _get(url):
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return r.read().decode("utf-8")
+def _get(url, tries=6):
+    last = None
+    for i in range(tries):
+        try:
+            req = urllib.request.Request(url, headers={
+                "User-Agent": UA, "Accept": "*/*", "Accept-Language": "en-AU,en;q=0.9"})
+            return urllib.request.urlopen(req, timeout=30).read().decode("utf-8")
+        except Exception as e:
+            last = e
+            time.sleep(3 * (i + 1))
+    raise last
 
 
-def get_build_id():
-    html = _get("https://www.coles.com.au/")
-    key = '"buildId":"'
-    i = html.find(key)
-    if i == -1:
-        raise RuntimeError("could not find Coles buildId on homepage")
-    j = html.find('"', i + len(key))
-    return html[i + len(key):j]
+def get_build_id(tries=6):
+    """Coles occasionally serves a bot-challenge stub even to residential IPs; retry."""
+    for i in range(tries):
+        html = _get("https://www.coles.com.au/")
+        if '"buildId":"' in html:
+            return html.split('"buildId":"')[1].split('"')[0]
+        time.sleep(3 * (i + 1))
+    raise RuntimeError("Coles not serving real page (no buildId after retries)")
 
 
-def search(term, build):
-    """Return the cheapest relevant Coles product for `term`, with special info."""
+def head_noun(term):
+    return term.split()[-1].lower().rstrip("s")
+
+
+def qty_of(ing):
+    parts = ing.rsplit(" x", 1)
+    return int(parts[1]) if len(parts) == 2 and parts[1].isdigit() else 1
+
+
+def term_of(ing):
+    parts = ing.rsplit(" x", 1)
+    return parts[0] if len(parts) == 2 and parts[1].isdigit() else ing
+
+
+def search(term, build, pins):
     url = (f"https://www.coles.com.au/_next/data/{build}/en/search/products.json"
            f"?q={urllib.parse.quote(term)}")
     try:
         data = json.loads(_get(url))
     except Exception as e:
-        return {"term": term, "error": str(e)}
+        return {"term": term, "found": False, "error": str(e)}
     results = (data.get("pageProps", {}).get("searchResults", {}).get("results") or [])
-    products = [p for p in results if isinstance(p, dict) and p.get("_type") == "PRODUCT"]
-    products = products[:TOP_N]
-
-    best = None
-    for p in products:
-        pr = p.get("pricing") or {}
-        now = pr.get("now")
-        if now is None:
-            continue
-        was = pr.get("was") or 0
-        cand = {
-            "name": p.get("name"),
-            "now": now,
-            "was": was if was and was > now else None,
-            "unit": pr.get("comparable"),
-            "special": bool(pr.get("specialType")),
-        }
-        if best is None or cand["now"] < best["now"]:
-            best = cand
-
-    if best is None:
+    products = [p for p in results if isinstance(p, dict) and p.get("_type") == "PRODUCT"
+                and (p.get("pricing") or {}).get("now") is not None]
+    if not products:
         return {"term": term, "found": False}
 
-    was, now = best["was"], best["now"]
+    chosen = None
+    if term in pins:                                   # manual override by product id
+        pid = str(pins[term].get("id"))
+        chosen = next((p for p in products if str(p.get("id")) == pid), None)
+    if chosen is None:                                 # relevance + head-noun match
+        head = head_noun(term)
+        chosen = next((p for p in products if head in (p.get("name") or "").lower()), None)
+    if chosen is None:
+        chosen = products[0]
+
+    pr = chosen["pricing"]
+    now = pr["now"]
+    was = pr.get("was") if (pr.get("was") and pr["was"] > now) else None
     disc = round(1 - now / was, 3) if was else 0.0
-    best.update({
-        "term": term,
-        "found": True,
+    return {
+        "term": term, "found": True, "id": str(chosen.get("id")),
+        "name": chosen.get("name"), "size": chosen.get("size"),
+        "now": now, "was": was, "unit": pr.get("comparable"),
         "discount": disc,
-        "on_special": disc >= SPECIAL_MIN or best["special"],
+        "on_special": (disc >= SPECIAL_MIN),           # honest: needs a real was-price
         "half_price": bool(was) and now <= HALF_PRICE * was + 1e-9,
-    })
-    return best
+    }
 
 
 def main():
     meals = json.load(open(os.path.join(HERE, "meals.json"), encoding="utf-8"))["meals"]
+    pins_path = os.path.join(HERE, "pins.json")
+    pins = json.load(open(pins_path, encoding="utf-8")) if os.path.exists(pins_path) else {}
 
-    # unique ingredient terms across every meal
-    terms = sorted({ing for m in meals for ing in m["ingredients"]})
+    terms = sorted({term_of(i) for m in meals for i in m["ingredients"]})
     print(f"Resolving {len(terms)} ingredients across {len(meals)} meals against live Coles...\n")
 
     build = get_build_id()
@@ -93,47 +112,48 @@ def main():
 
     prices = {}
     for n, term in enumerate(terms, 1):
-        prices[term] = search(term, build)
+        prices[term] = search(term, build, pins)
         p = prices[term]
         if p.get("found"):
             tag = "HALF PRICE" if p["half_price"] else ("special" if p["on_special"] else "")
-            print(f"  [{n:2}/{len(terms)}] {term:28} ${p['now']:<6} {tag}")
+            print(f"  [{n:2}/{len(terms)}] {term:26} ${p['now']:<6} {str(p.get('size') or ''):8} {tag}")
         else:
-            print(f"  [{n:2}/{len(terms)}] {term:28} (no match)")
-        time.sleep(0.25)  # polite throttle
+            print(f"  [{n:2}/{len(terms)}] {term:26} (no match)")
+        time.sleep(0.3)
 
-    # ---- per-meal value scoring ----
+    # ---- per-meal value scoring (quantity-aware) ----
     scored = []
     for m in meals:
-        ings = [prices[i] for i in m["ingredients"] if prices.get(i, {}).get("found")]
-        cost = round(sum(i["now"] for i in ings), 2)
-        specials = [i for i in ings if i["on_special"]]
-        halves = [i for i in ings if i["half_price"]]
-        scored.append({
-            "id": m["id"], "name": m["name"], "emoji": m.get("emoji", ""),
-            "theme": m["theme"], "cost": cost,
-            "n_special": len(specials), "n_half": len(halves),
-            "special_items": [i["term"] for i in specials],
-        })
+        cost, specials, halves = 0.0, [], []
+        for ing in m["ingredients"]:
+            p = prices.get(term_of(ing), {})
+            if not p.get("found"):
+                continue
+            cost += p["now"] * qty_of(ing)
+            if p["half_price"]:
+                halves.append(term_of(ing))
+            elif p["on_special"]:
+                specials.append(term_of(ing))
+        scored.append({"id": m["id"], "name": m["name"], "emoji": m.get("emoji", ""),
+                       "theme": m["theme"], "cost": round(cost, 2),
+                       "n_special": len(specials) + len(halves), "n_half": len(halves),
+                       "special_items": halves + specials})
     scored.sort(key=lambda s: (s["n_half"], s["n_special"], -s["cost"]), reverse=True)
 
     # ---- report ----
-    on_special = sorted([p for p in prices.values() if p.get("on_special")],
+    on_special = sorted([p for p in prices.values() if p.get("found") and p["on_special"]],
                         key=lambda p: -p["discount"])
     print(f"\n{'='*60}\nON SPECIAL THIS WEEK ({len(on_special)} ingredients)\n{'='*60}")
     for p in on_special:
-        was = f"was ${p['was']}" if p["was"] else ""
         flag = "  <-- HALF PRICE" if p["half_price"] else ""
-        print(f"  {int(p['discount']*100):>3}% off  {p['term']:26} ${p['now']:<6} {was}{flag}")
+        print(f"  {int(p['discount']*100):>3}% off  {p['term']:24} ${p['now']:<6} was ${p['was']}{flag}")
 
     print(f"\n{'='*60}\nBEST-VALUE DINNERS THIS WEEK\n{'='*60}")
     for s in scored[:8]:
         note = f"{s['n_half']} half-price, {s['n_special']} on special" if s["n_special"] else "nothing on special"
         print(f"  {s['emoji']} {s['name']:34} ~${s['cost']:<6} ({note})")
-        if s["special_items"]:
-            print(f"       cheap: {', '.join(s['special_items'])}")
 
-    # ---- persist snapshot for history / cycle-learning ----
+    # ---- persist snapshot (history for cycle-learning) ----
     today = datetime.date.today().isoformat()
     os.makedirs(os.path.join(HERE, "prices"), exist_ok=True)
     snapshot = {"date": today, "build": build, "prices": prices, "meals": scored}

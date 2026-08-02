@@ -43,7 +43,7 @@
     },
     {
       "id": "homemade_pizza", "name": "Homemade Pizza", "theme": "Pizza", "emoji": "🍕",
-      "ingredients": ["pizza bases", "pizza sauce", "mozzarella cheese", "shaved ham", "mushrooms", "capsicum"],
+      "ingredients": ["pizza bases x2", "pizza sauce", "mozzarella cheese", "shaved ham", "mushrooms", "capsicum"],
       "pantry": []
     },
     {
@@ -73,7 +73,7 @@
     },
     {
       "id": "burgers", "name": "Burgers & Chips", "theme": "Wraps", "emoji": "🍔",
-      "ingredients": ["beef burger patties", "burger buns", "tasty cheese", "lettuce", "tomato", "frozen chips", "tomato sauce"],
+      "ingredients": ["beef burger patties x2", "burger buns", "tasty cheese", "lettuce", "tomato", "frozen chips", "tomato sauce"],
       "pantry": []
     },
     {
@@ -118,7 +118,7 @@
     },
     {
       "id": "sausages_bbq", "name": "Sausages & Sweet Potato Salad", "theme": "BBQ", "emoji": "🌭",
-      "ingredients": ["beef sausages", "sweet potato", "baby spinach", "red onion", "bread rolls"],
+      "ingredients": ["beef sausages x2", "sweet potato", "baby spinach", "red onion", "bread rolls"],
       "pantry": ["olive oil"]
     },
     {
