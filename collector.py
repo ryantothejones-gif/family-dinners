@@ -21,16 +21,23 @@ if hasattr(sys.stdout, "reconfigure"):
 HERE = os.path.dirname(os.path.abspath(__file__))
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/120.0 Safari/537.36")
+# Localise prices to the family's Coles store. 0490 = Coles Gateway, Success WA
+# (region c-wa-met) — verified via the public store picker to change real prices
+# (e.g. carrots $1.50 here vs $2.40 default). Override with COLES_STORE_ID.
+STORE_ID = os.environ.get("COLES_STORE_ID") or "0490"
+SHOPPING_METHOD = os.environ.get("COLES_SHOPPING_METHOD") or "clickAndCollect"
 HALF_PRICE = 0.50        # now <= 50% of was
 SPECIAL_MIN = 0.15       # >=15% off counts as "on special"
 
 
 def _get(url, tries=6):
     last = None
+    headers = {"User-Agent": UA, "Accept": "*/*", "Accept-Language": "en-AU,en;q=0.9"}
+    if STORE_ID:  # localise pricing to the family's store (carried by a cookie)
+        headers["Cookie"] = f"fulfillmentStoreId={STORE_ID}; shopping-method={SHOPPING_METHOD}"
     for i in range(tries):
         try:
-            req = urllib.request.Request(url, headers={
-                "User-Agent": UA, "Accept": "*/*", "Accept-Language": "en-AU,en;q=0.9"})
+            req = urllib.request.Request(url, headers=headers)
             return urllib.request.urlopen(req, timeout=30).read().decode("utf-8")
         except Exception as e:
             last = e
